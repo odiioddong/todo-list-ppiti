@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+
+<head>
+  <link rel="stylesheet" href="main.css" />
+</head>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo-wrap">
+        <div class="logo-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 11 12 14 22 4"></polyline>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-title">PPITI Todo App</span>
+          <span class="logo-subtitle">Task Management &amp; Deployment Demo</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- INPUT CARD -->
+    <div class="card input-card">
+      <input
+        type="text"
+        class="task-input"
+        id="taskInput"
+        placeholder="Enter new task..."
+      />
+      <div class="input-row">
+        <div class="date-wrap">
+          <svg class="date-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          <input type="date" class="date-input" id="deadlineInput" placeholder="Select deadline (optional)" />
+          <span class="date-placeholder" id="datePlaceholder">Select deadline (optional)</span>
+        </div>
+        <button class="btn-add" id="addBtn" onclick="addTask()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Add Task
+        </button>
+      </div>
+    </div>
+
+    <!-- CONTENT AREA -->
+    <div class="content-area">
+
+      <!-- LEFT: TASK LIST -->
+      <div class="task-section">
+        <!-- TABS -->
+        <div class="tabs">
+          <button class="tab active" id="tabAll" onclick="switchTab('all')">All</button>
+          <button class="tab" id="tabCompleted" onclick="switchTab('completed')">Completed</button>
+        </div>
+
+        <!-- TASKS -->
+        <div class="task-list" id="taskList">
+          <!-- Tasks rendered by JS -->
+        </div>
+      </div>
+
+      <!-- RIGHT: STATISTICS -->
+      <div class="stats-card">
+        <h3 class="stats-title">Statistics</h3>
+        <div class="stat-row">
+          <div class="stat-icon-wrap blue">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="8" y1="6" x2="21" y2="6"></line>
+              <line x1="8" y1="12" x2="21" y2="12"></line>
+              <line x1="8" y1="18" x2="21" y2="18"></line>
+              <line x1="3" y1="6" x2="3.01" y2="6"></line>
+              <line x1="3" y1="12" x2="3.01" y2="12"></line>
+              <line x1="3" y1="18" x2="3.01" y2="18"></line>
+            </svg>
+          </div>
+          <span class="stat-label">Total Tasks</span>
+          <span class="stat-value" id="statTotal">4</span>
+        </div>
+        <div class="stat-row">
+          <div class="stat-icon-wrap green">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+          <span class="stat-label">Completed</span>
+          <span class="stat-value" id="statCompleted">1</span>
+        </div>
+        <div class="stat-row">
+          <div class="stat-icon-wrap orange">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+            </svg>
+          </div>
+          <span class="stat-label">Pending</span>
+          <span class="stat-value" id="statPending">3</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p>Hosted on: <a href="#" class="footer-link">Vercel</a> | <a href="#" class="footer-link">Netlify</a> | <a href="#" class="footer-link">GitHub Pages</a></p>
+  </footer>
+
+  <!-- EDIT MODAL -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <h4 class="modal-title">Edit Task</h4>
+      <input type="text" class="task-input" id="editInput" placeholder="Edit task name..." />
+      <div class="modal-buttons">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-save" onclick="saveEdit()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let tasks = [
+      { id: 1, name: 'Setup Backend API', completed: false, deadline: '' },
+      { id: 2, name: 'Deploy to Vercel', completed: true, deadline: '' },
+      { id: 3, name: 'Configure Domain', completed: false, deadline: '' },
+      { id: 4, name: 'SSL Testing', completed: false, deadline: '' },
+    ];
+    let nextId = 5;
+    let currentTab = 'all';
+    let editingId = null;
+
+    const dateInput = document.getElementById('deadlineInput');
+    const datePlaceholder = document.getElementById('datePlaceholder');
+
+    dateInput.addEventListener('change', () => {
+      datePlaceholder.style.display = dateInput.value ? 'none' : 'block';
+    });
+
+    function renderTasks() {
+      const list = document.getElementById('taskList');
+      const filtered = currentTab === 'all' ? tasks : tasks.filter(t => t.completed);
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<p class="empty-msg">No tasks found.</p>';
+        return;
+      }
+
+      list.innerHTML = filtered.map(task => `
+        <div class="task-item ${task.completed ? 'completed' : ''}">
+          <label class="checkbox-wrap">
+            <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${task.id})" />
+            <span class="custom-checkbox ${task.completed ? 'checked' : ''}">
+              ${task.completed ? `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>` : ''}
+            </span>
+          </label>
+          <span class="task-name ${task.completed ? 'strikethrough' : ''}">${task.name}</span>
+          <div class="task-actions">
+            <button class="action-btn edit-btn" onclick="openEdit(${task.id})" title="Edit">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+            </button>
+            <button class="action-btn delete-btn" onclick="deleteTask(${task.id})" title="Delete">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                <path d="M10 11v6"></path>
+                <path d="M14 11v6"></path>
+                <path d="M9 6V4h6v2"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      updateStats();
+    }
+
+    function updateStats() {
+      const total = tasks.length;
+      const completed = tasks.filter(t => t.completed).length;
+      const pending = total - completed;
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statCompleted').textContent = completed;
+      document.getElementById('statPending').textContent = pending;
+    }
+
+    function addTask() {
+      const input = document.getElementById('taskInput');
+      const name = input.value.trim();
+      if (!name) return;
+      tasks.push({ id: nextId++, name, completed: false, deadline: dateInput.value });
+      input.value = '';
+      dateInput.value = '';
+      datePlaceholder.style.display = 'block';
+      renderTasks();
+    }
+
+    document.getElementById('taskInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') addTask();
+    });
+
+    function toggleTask(id) {
+      const t = tasks.find(t => t.id === id);
+      if (t) t.completed = !t.completed;
+      renderTasks();
+    }
+
+    function deleteTask(id) {
+      tasks = tasks.filter(t => t.id !== id);
+      renderTasks();
+    }
+
+    function openEdit(id) {
+      editingId = id;
+      const t = tasks.find(t => t.id === id);
+      document.getElementById('editInput').value = t.name;
+      document.getElementById('editModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('editModal').classList.remove('active');
+      editingId = null;
+    }
+
+    function saveEdit() {
+      const val = document.getElementById('editInput').value.trim();
+      if (!val) return;
+      const t = tasks.find(t => t.id === editingId);
+      if (t) t.name = val;
+      closeModal();
+      renderTasks();
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('tabAll').classList.toggle('active', tab === 'all');
+      document.getElementById('tabCompleted').classList.toggle('active', tab === 'completed');
+      renderTasks();
+    }
+
+    renderTasks();
+  </script>
+</body>
+</html>
